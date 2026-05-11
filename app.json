@@ -1,32 +1,46 @@
 {
   "expo": {
-    "name": "seamclone",
+    "name": "SeamClone",
     "slug": "seamclone",
-    "version": "1.0.0",
+    "version": "1.0.0-ALPHA",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "seamclone",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.seamclone.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "SeamClone uses the camera to scan garments and a standard card for precise pattern scaling.",
+        "NSMotionUsageDescription": "SeamClone uses motion sensors to ensure your phone is level for accurate pattern capture."
+      }
     },
     "android": {
+      "permissions": [
+        "CAMERA"
+      ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0066CC",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.seamclone.app"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SeamClone uses the camera to scan garments and a standard card for precise pattern scaling."
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -41,7 +55,6 @@
       ]
     ],
     "experiments": {
-      "typedRoutes": true,
       "reactCompiler": true
     }
   }
