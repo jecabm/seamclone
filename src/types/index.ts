@@ -28,18 +28,24 @@ export interface ReferenceScale {
   timestamp: Date;
 }
 
+// New type for reference orientation
+export type ReferenceOrientation = 'landscape' | 'portrait';
+
 export interface ScanReferenceObject {
   objectType: 'credit_card' | 'ruler' | 'custom';
   widthPx: number;
   heightPx: number;
   confidence: number;
   detected: boolean;
+  orientation: ReferenceOrientation;
+  corners: Point[];
 }
 
 export interface ScanCalibration {
   ppm: number;
   realWorldWidthMm: number;
   pixelWidth: number;
+  pixelHeight: number;
 }
 
 export interface ScanValidation {

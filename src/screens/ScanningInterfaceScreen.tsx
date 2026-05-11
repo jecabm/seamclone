@@ -8,30 +8,44 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import { DeviceMotion } from 'expo-sensors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
 import { Ionicons } from '@expo/vector-icons';
+
 import { scanService } from '../services/firebase';
+import { Point, ReferenceOrientation, RootStackParamList } from '../types';
 
 type ScanningInterfaceProps = NativeStackScreenProps<RootStackParamList, 'ScanningInterface'>;
+
+type DetectedCard = {
+  orientation: ReferenceOrientation;
+  widthPx: number;
+  heightPx: number;
+  overlayWidth: number;
+  overlayHeight: number;
+  overlayTop: number;
+  overlayRight: number;
+  confidence: number;
+  corners: Point[];
+};
+
+const CARD_LONG_EDGE_MM = 85.6;
 
 export const ScanningInterfaceScreen: React.FC<ScanningInterfaceProps> = ({
   route,
   navigation,
 }) => {
   const { projectId } = route.params;
-  const cameraRef = useRef<CameraView | null>(null);
-  const [permission, requestPermission] = useCameraPermissions();
+  const cameraRef = useRef<Camera | null>(null);
+  const { hasPermission, requestPermission } = useCameraPermission();
+  const device = useCameraDevice('back');
   const [motionReady, setMotionReady] = useState(false);
-
   const [capturing, setCapturing] = useState(false);
   const [tiltDeg, setTiltDeg] = useState(90);
   const [tiltOk, setTiltOk] = useState(false);
-
-  // Stage-1 heuristic detection: stable level frames represent valid setup before ML upgrade.
   const [stableFrames, setStableFrames] = useState(0);
+  const [referenceOrientation, setReferenceOrientation] = useState<ReferenceOrientation>('landscape');
 
   useEffect(() => {
     let mounted = true;
@@ -79,12 +93,40 @@ export const ScanningInterfaceScreen: React.FC<ScanningInterfaceProps> = ({
 
   const garmentEdgeDetected = stableFrames >= 4;
   const scaleReferenceDetected = stableFrames >= 8;
-  const referenceConfidence = Math.min(0.95, stableFrames / 10);
-  const referenceWidthPx = 320;
-  const referenceHeightPx = 202;
-  const ppm = referenceWidthPx / 85.6;
-
   const captureEnabled = garmentEdgeDetected && scaleReferenceDetected && tiltOk;
+
+  const detectedCard = useMemo<DetectedCard>(() => {
+    const isLandscape = referenceOrientation === 'landscape';
+    const widthPx = isLandscape ? 320 : 202;
+    const heightPx = isLandscape ? 202 : 320;
+    const overlayWidth = isLandscape ? 132 : 88;
+    const overlayHeight = isLandscape ? 84 : 128;
+    const overlayTop = isLandscape ? 398 : 372;
+    const overlayRight = isLandscape ? 96 : 114;
+    const confidence = Math.min(0.96, 0.46 + stableFrames / 20);
+
+    const corners: Point[] = [
+      { x: overlayRight, y: overlayTop },
+      { x: overlayRight + overlayWidth, y: overlayTop },
+      { x: overlayRight + overlayWidth, y: overlayTop + overlayHeight },
+      { x: overlayRight, y: overlayTop + overlayHeight },
+    ];
+
+    return {
+      orientation: referenceOrientation,
+      widthPx,
+      heightPx,
+      overlayWidth,
+      overlayHeight,
+      overlayTop,
+      overlayRight,
+      confidence,
+      corners,
+    };
+  }, [referenceOrientation, stableFrames]);
+
+  const ppm = Math.max(detectedCard.widthPx, detectedCard.heightPx) / CARD_LONG_EDGE_MM;
+  const mmPerPixel = 1 / ppm;
 
   const disabledReason = useMemo(() => {
     if (!tiltOk) return 'Hold phone flatter: tilt must be 3 degrees or less.';
@@ -105,29 +147,31 @@ export const ScanningInterfaceScreen: React.FC<ScanningInterfaceProps> = ({
 
     try {
       setCapturing(true);
-      const photo = await cameraRef.current.takePictureAsync({
-        quality: 0.8,
-        skipProcessing: true,
-      });
+      const photo = await cameraRef.current.takePhoto();
 
-      if (!photo?.uri) {
+      if (!photo?.path) {
         throw new Error('Camera did not return an image. Please try again.');
       }
 
+      const imageUri = `file://${photo.path}`;
+
       const scan = await scanService.createScan({
         projectId,
-        rawImageUri: photo.uri,
+        rawImageUri: imageUri,
         referenceObject: {
           objectType: 'credit_card',
-          widthPx: referenceWidthPx,
-          heightPx: referenceHeightPx,
-          confidence: referenceConfidence,
+          widthPx: detectedCard.widthPx,
+          heightPx: detectedCard.heightPx,
+          confidence: detectedCard.confidence,
           detected: scaleReferenceDetected,
+          orientation: detectedCard.orientation,
+          corners: detectedCard.corners,
         },
         calibration: {
           ppm,
-          realWorldWidthMm: 85.6,
-          pixelWidth: referenceWidthPx,
+          realWorldWidthMm: CARD_LONG_EDGE_MM,
+          pixelWidth: detectedCard.widthPx,
+          pixelHeight: detectedCard.heightPx,
         },
         validation: {
           tiltDeg,
@@ -146,15 +190,7 @@ export const ScanningInterfaceScreen: React.FC<ScanningInterfaceProps> = ({
     }
   };
 
-  if (!permission) {
-    return (
-      <SafeAreaView style={styles.permissionContainer}>
-        <ActivityIndicator color="#0066CC" size="large" />
-      </SafeAreaView>
-    );
-  }
-
-  if (!permission.granted) {
+  if (!hasPermission) {
     return (
       <SafeAreaView style={styles.permissionContainer}>
         <Text style={styles.permissionTitle}>Camera Permission Needed</Text>
@@ -168,16 +204,46 @@ export const ScanningInterfaceScreen: React.FC<ScanningInterfaceProps> = ({
     );
   }
 
+  if (!device) {
+    return (
+      <SafeAreaView style={styles.permissionContainer}>
+        <Text style={styles.permissionTitle}>No Camera Device Found</Text>
+        <Text style={styles.permissionText}>
+          SeamClone could not find a back camera on this device.
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <CameraView ref={cameraRef} style={StyleSheet.absoluteFillObject} facing="back" />
+      <Camera
+        ref={cameraRef}
+        style={StyleSheet.absoluteFillObject}
+        device={device}
+        isActive
+        photo
+      />
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="close-outline" size={28} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.title}>Guided Capture</Text>
-        <View style={{ width: 28 }} />
+        <TouchableOpacity
+          style={styles.orientationToggle}
+          onPress={() =>
+            setReferenceOrientation((current) =>
+              current === 'landscape' ? 'portrait' : 'landscape'
+            )
+          }
+        >
+          <Ionicons name="sync-outline" size={18} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.bannerContainer}>
+        <Text style={styles.bannerText}>Place a standard card next to the garment for scale</Text>
       </View>
 
       <View style={styles.levelContainer}>
@@ -196,21 +262,33 @@ export const ScanningInterfaceScreen: React.FC<ScanningInterfaceProps> = ({
 
       <View
         style={[
-          styles.referenceBox,
+          styles.detectedCardBox,
+          {
+            width: detectedCard.overlayWidth,
+            height: detectedCard.overlayHeight,
+            top: detectedCard.overlayTop,
+            right: detectedCard.overlayRight,
+          },
           scaleReferenceDetected ? styles.referenceBoxDetected : styles.referenceBoxPending,
         ]}
       >
-        <Text style={styles.overlayLabel}>Scale Anchor</Text>
+        <View style={styles.cornerTopLeft} />
+        <View style={styles.cornerTopRight} />
+        <View style={styles.cornerBottomLeft} />
+        <View style={styles.cornerBottomRight} />
       </View>
 
-      <View style={styles.footer}>
-        <View style={styles.instructionBox}>
-          <Ionicons name="information-circle-outline" size={20} color="#fff" />
-          <Text style={styles.instructionText}>
-            Place a standard card next to the garment for scale
+      {scaleReferenceDetected && (
+        <View style={styles.scaleDetectedBox}>
+          <Text style={styles.scaleDetectedTitle}>Scale Detected</Text>
+          <Text style={styles.scaleDetectedText}>1 px = {mmPerPixel.toFixed(2)} mm</Text>
+          <Text style={styles.scaleDetectedMeta}>
+            {detectedCard.orientation} • {detectedCard.confidence.toFixed(2)} conf.
           </Text>
         </View>
+      )}
 
+      <View style={styles.footer}>
         <View style={styles.statusRow}>
           <View style={styles.statusPill}>
             <Text style={styles.statusTitle}>Garment Edge</Text>
@@ -221,7 +299,7 @@ export const ScanningInterfaceScreen: React.FC<ScanningInterfaceProps> = ({
           <View style={styles.statusPill}>
             <Text style={styles.statusTitle}>Scale Ref</Text>
             <Text style={scaleReferenceDetected ? styles.statusOkText : styles.statusWarnText}>
-              {scaleReferenceDetected ? `Detected (${referenceConfidence.toFixed(2)})` : 'Waiting'}
+              {scaleReferenceDetected ? detectedCard.orientation : 'Waiting'}
             </Text>
           </View>
           <View style={styles.statusPill}>
@@ -240,7 +318,10 @@ export const ScanningInterfaceScreen: React.FC<ScanningInterfaceProps> = ({
           {capturing ? (
             <ActivityIndicator color="#000" />
           ) : (
-            <Ionicons name="camera" size={32} color="#000" />
+            <>
+              <Ionicons name="camera" size={30} color="#000" />
+              <Text style={styles.captureButtonText}>Capture</Text>
+            </>
           )}
         </TouchableOpacity>
 
@@ -300,105 +381,179 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  orientationToggle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  bannerContainer: {
+    alignSelf: 'center',
+    marginTop: 10,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  bannerText: {
+    color: '#111',
+    fontSize: 15,
+    fontWeight: '600',
+  },
   levelContainer: {
-    marginHorizontal: 16,
-    marginTop: 8,
+    position: 'absolute',
+    right: 16,
+    top: 70,
+    width: 140,
     padding: 10,
-    borderRadius: 10,
-    backgroundColor: 'rgba(0,0,0,0.48)',
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.45)',
     alignItems: 'center',
   },
   levelText: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     marginBottom: 8,
   },
   levelTrack: {
-    width: 80,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 1,
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    borderWidth: 2,
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    alignItems: 'center',
   },
   levelTrackOk: {
-    borderColor: '#2ecc71',
-    backgroundColor: 'rgba(46,204,113,0.12)',
+    borderColor: '#39d353',
+    backgroundColor: 'rgba(57,211,83,0.18)',
   },
   levelTrackWarn: {
-    borderColor: '#f39c12',
-    backgroundColor: 'rgba(243,156,18,0.12)',
+    borderColor: '#f1c40f',
+    backgroundColor: 'rgba(241,196,15,0.14)',
   },
   levelBubble: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#fff',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#39d353',
+    borderWidth: 1,
+    borderColor: '#0c6119',
   },
   levelState: {
     marginTop: 8,
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   garmentBox: {
     position: 'absolute',
-    top: '22%',
-    left: '8%',
-    width: '84%',
-    height: '45%',
+    top: 140,
+    left: 36,
+    width: 320,
+    height: 310,
     borderWidth: 2,
-    borderColor: '#00d2ff',
+    borderColor: '#57d3da',
     borderStyle: 'dashed',
-    borderRadius: 10,
+    borderRadius: 14,
     padding: 8,
-  },
-  referenceBox: {
-    position: 'absolute',
-    top: '30%',
-    right: '12%',
-    width: 110,
-    height: 70,
-    borderWidth: 2,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  referenceBoxDetected: {
-    borderColor: '#2ecc71',
-    backgroundColor: 'rgba(46,204,113,0.2)',
-  },
-  referenceBoxPending: {
-    borderColor: '#f1c40f',
-    backgroundColor: 'rgba(241,196,15,0.15)',
   },
   overlayLabel: {
     color: '#fff',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     textShadowColor: 'rgba(0,0,0,0.65)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
+  detectedCardBox: {
+    position: 'absolute',
+    borderWidth: 3,
+    borderRadius: 10,
+  },
+  referenceBoxDetected: {
+    borderColor: '#39d353',
+    backgroundColor: 'rgba(57,211,83,0.16)',
+    shadowColor: '#39d353',
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+  },
+  referenceBoxPending: {
+    borderColor: '#f1c40f',
+    backgroundColor: 'rgba(241,196,15,0.1)',
+  },
+  cornerTopLeft: {
+    position: 'absolute',
+    top: -4,
+    left: -4,
+    width: 18,
+    height: 18,
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+    borderColor: '#39d353',
+  },
+  cornerTopRight: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 18,
+    height: 18,
+    borderTopWidth: 4,
+    borderRightWidth: 4,
+    borderColor: '#39d353',
+  },
+  cornerBottomLeft: {
+    position: 'absolute',
+    bottom: -4,
+    left: -4,
+    width: 18,
+    height: 18,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+    borderColor: '#39d353',
+  },
+  cornerBottomRight: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    width: 18,
+    height: 18,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+    borderColor: '#39d353',
+  },
+  scaleDetectedBox: {
+    position: 'absolute',
+    right: 18,
+    top: 468,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: 'rgba(22,36,24,0.84)',
+    borderWidth: 1,
+    borderColor: 'rgba(57,211,83,0.75)',
+  },
+  scaleDetectedTitle: {
+    color: '#6ce16b',
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  scaleDetectedText: {
+    color: '#d9ffe0',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  scaleDetectedMeta: {
+    color: '#95d7a2',
+    fontSize: 11,
+    marginTop: 2,
+  },
   footer: {
-    paddingBottom: 32,
+    paddingBottom: 30,
     paddingHorizontal: 16,
     marginTop: 'auto',
-  },
-  instructionBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.65)',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  instructionText: {
-    color: '#fff',
-    fontSize: 14,
-    marginLeft: 12,
-    flex: 1,
   },
   statusRow: {
     flexDirection: 'row',
@@ -407,7 +562,7 @@ const styles = StyleSheet.create({
   },
   statusPill: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
+    backgroundColor: 'rgba(0,0,0,0.58)',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 10,
@@ -423,7 +578,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   statusOkText: {
-    color: '#2ecc71',
+    color: '#39d353',
     fontSize: 12,
     fontWeight: '700',
   },
@@ -443,22 +598,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   captureButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#fff',
+    width: 102,
+    height: 102,
+    borderRadius: 51,
+    backgroundColor: '#61d56f',
+    borderWidth: 4,
+    borderColor: '#1483d4',
     alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
-    elevation: 8,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
   },
   captureButtonDisabled: {
     opacity: 0.4,
+  },
+  captureButtonText: {
+    color: '#103b14',
+    fontSize: 12,
+    fontWeight: '800',
+    marginTop: 2,
+    textTransform: 'uppercase',
   },
   captureHint: {
     color: '#ddd',

@@ -11,11 +11,17 @@ export interface IScan extends Document {
     heightPx: number;
     confidence: number;
     detected: boolean;
+    orientation: 'landscape' | 'portrait';
+    corners: Array<{
+      x: number;
+      y: number;
+    }>;
   };
   calibration: {
     ppm: number;
     realWorldWidthMm: number;
     pixelWidth: number;
+    pixelHeight: number;
   };
   validation: {
     tiltDeg: number;
@@ -49,11 +55,23 @@ const ScanSchema = new Schema<IScan>(
       heightPx: { type: Number, required: true, min: 1 },
       confidence: { type: Number, required: true, min: 0, max: 1 },
       detected: { type: Boolean, required: true },
+      orientation: {
+        type: String,
+        enum: ['landscape', 'portrait'],
+        required: true,
+      },
+      corners: [
+        {
+          x: { type: Number, required: true },
+          y: { type: Number, required: true },
+        },
+      ],
     },
     calibration: {
       ppm: { type: Number, required: true, min: 0.01 },
       realWorldWidthMm: { type: Number, required: true, min: 1 },
       pixelWidth: { type: Number, required: true, min: 1 },
+      pixelHeight: { type: Number, required: true, min: 1 },
     },
     validation: {
       tiltDeg: { type: Number, required: true, min: 0 },

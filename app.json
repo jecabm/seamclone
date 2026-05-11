@@ -1,19 +1,20 @@
 {
   "expo": {
     "name": "SeamClone",
-    "slug": "seamclone",
+    "slug": "seamclone-jb-private",
     "version": "1.0.0-ALPHA",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "seamclone",
+    "scheme": "seamclonejb",
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.seamclone.app",
+      "bundleIdentifier": "com.jessicabossio.seamclone",
       "infoPlist": {
         "NSCameraUsageDescription": "SeamClone uses the camera to scan garments and a standard card for precise pattern scaling.",
-        "NSMotionUsageDescription": "SeamClone uses motion sensors to ensure your phone is level for accurate pattern capture."
+        "NSMotionUsageDescription": "SeamClone uses motion sensors to ensure your phone is level for accurate pattern capture.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -28,19 +29,13 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.seamclone.app"
+      "package": "com.jessicabossio.seamclone"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "SeamClone uses the camera to scan garments and a standard card for precise pattern scaling."
-        }
-      ],
       [
         "expo-splash-screen",
         {
@@ -56,6 +51,11 @@
     ],
     "experiments": {
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6f7f6525-f48d-407c-8f05-6a796782678f"
+      }
     }
   }
 }

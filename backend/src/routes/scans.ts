@@ -37,6 +37,11 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
     return;
   }
 
+  if (!Array.isArray(referenceObject.corners) || referenceObject.corners.length !== 4) {
+    res.status(400).json({ message: 'Reference object must include 4 detected corner points' });
+    return;
+  }
+
   if (!validation.captureEnabled) {
     res.status(400).json({
       message: 'Capture validation failed: garment edge, scale reference, and tilt constraints are required',
