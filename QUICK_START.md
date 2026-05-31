@@ -21,14 +21,15 @@
 ## Step 2: Update Firebase Config (2 min)
 
 Open `src/services/firebase.ts` and replace:
+
 ```typescript
 const firebaseConfig = {
-  apiKey: 'PASTE_YOUR_API_KEY',
-  authDomain: 'PASTE_YOUR_AUTH_DOMAIN',
-  projectId: 'PASTE_YOUR_PROJECT_ID',
-  storageBucket: 'PASTE_YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'PASTE_YOUR_MESSAGING_SENDER_ID',
-  appId: 'PASTE_YOUR_APP_ID',
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId: "PASTE_YOUR_APP_ID",
 };
 ```
 
@@ -41,6 +42,7 @@ npm start
 ```
 
 In the terminal, press:
+
 - `a` for Android emulator
 - `i` for iOS simulator
 - `w` for web browser
@@ -115,21 +117,25 @@ npm run web         # Run in browser
 ## Troubleshooting
 
 ### "Firebase connection error"
+
 - Check your API key is correct in `src/services/firebase.ts`
 - Make sure Authentication is enabled in Firebase console
 - Verify Firestore is created
 
 ### "App won't start"
+
 ```bash
 npm start -- --clear    # Clear cache
 ```
 
 ### "TypeScript errors"
+
 - Ensure TypeScript version is correct: `npm install -g typescript@5.9`
 
 ## Next Phase
 
 When ready to start Phase 2 (Scanning Interface):
+
 1. Install camera libraries
 2. Add camera permissions
 3. Integrate computer vision

@@ -28,48 +28,14 @@ export interface ReferenceScale {
   timestamp: Date;
 }
 
-// New type for reference orientation
-export type ReferenceOrientation = 'landscape' | 'portrait';
-
-export interface ScanReferenceObject {
-  objectType: 'credit_card' | 'ruler' | 'custom';
-  widthPx: number;
-  heightPx: number;
-  confidence: number;
-  detected: boolean;
-  orientation: ReferenceOrientation;
-  corners: Point[];
-}
-
-export interface ScanCalibration {
-  ppm: number;
-  realWorldWidthMm: number;
-  pixelWidth: number;
-  pixelHeight: number;
-}
-
-export interface ScanValidation {
-  tiltDeg: number;
-  tiltOk: boolean;
-  garmentEdgeDetected: boolean;
-  scaleReferenceDetected: boolean;
-  captureEnabled: boolean;
-}
-
 // Scan data
 export interface Scan {
   id: string;
   projectId: string;
-  userId: string;
   rawImageUri: string;
   rectifiedImageUri?: string;
-  referenceObject: ScanReferenceObject;
-  calibration: ScanCalibration;
-  validation: ScanValidation;
   adjustmentParams?: AdjustmentParams;
-  status: 'captured' | 'rectified' | 'processed';
   createdAt: Date;
-  updatedAt: Date;
 }
 
 // Adjustment parameters for edge detection and rectification

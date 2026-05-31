@@ -5,7 +5,6 @@ import dotenv from 'dotenv';
 
 import authRoutes from './routes/auth';
 import projectRoutes from './routes/projects';
-import scanRoutes from './routes/scans';
 
 dotenv.config();
 
@@ -25,7 +24,6 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
-app.use('/api/scans', scanRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {

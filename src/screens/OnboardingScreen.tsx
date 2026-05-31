@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,61 +7,66 @@ import {
   ScrollView,
   Dimensions,
   SafeAreaView,
-} from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../types";
+import { Ionicons } from "@expo/vector-icons";
 
-type OnboardingScreenProps = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
+type OnboardingScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  "Onboarding"
+>;
 
 const slides = [
   {
     id: 1,
-    title: 'Welcome to SeamClone',
-    description: 'High-precision technical scanning for garment manufacturing.',
-    icon: 'shirt-outline' as const,
+    title: "Welcome to SeamClone",
+    description: "High-precision technical scanning for garment manufacturing.",
+    icon: "shirt-outline" as const,
   },
   {
     id: 2,
-    title: 'Scale Reference',
+    title: "Scale Reference",
     description:
-      'Place a standard card (credit card, ruler, or any known-size object) next to the garment for scale. This allows our engine to map pixels to millimeters with 99.9% accuracy.',
-    icon: 'credit-outline' as const,
+      "Place a standard card (credit card, ruler, or any known-size object) next to the garment for scale. This allows our engine to map pixels to millimeters with 99.9% accuracy.",
+    icon: "credit-outline" as const,
     details: [
-      'Position the reference object clearly in frame',
-      'Ensure uniform lighting',
-      'Keep the garment flat and unwrinkled',
+      "Position the reference object clearly in frame",
+      "Ensure uniform lighting",
+      "Keep the garment flat and unwrinkled",
     ],
   },
   {
     id: 3,
-    title: 'Capture & Rectify',
+    title: "Capture & Rectify",
     description:
-      'Our AI handles perspective correction and edge detection. Adjust refinement settings to get perfect pattern pieces.',
-    icon: 'camera-outline' as const,
+      "Our AI handles perspective correction and edge detection. Adjust refinement settings to get perfect pattern pieces.",
+    icon: "camera-outline" as const,
   },
   {
     id: 4,
-    title: 'Export & Print',
+    title: "Export & Print",
     description:
-      'Export pattern pieces as tiled PDFs for A4, Letter, or A0 printing. Print and measure to validate accuracy.',
-    icon: 'document-outline' as const,
+      "Export pattern pieces as tiled PDFs for A4, Letter, or A0 printing. Print and measure to validate accuracy.",
+    icon: "document-outline" as const,
   },
 ];
 
-export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }) => {
+export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
+  navigation,
+}) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
-      navigation.replace('MainApp');
+      navigation.replace("MainApp");
     }
   };
 
   const handleSkip = () => {
-    navigation.replace('MainApp');
+    navigation.replace("MainApp");
   };
 
   const slide = slides[currentSlide];
@@ -133,7 +138,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }
 
         <TouchableOpacity style={styles.button} onPress={handleNext}>
           <Text style={styles.buttonText}>
-            {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
+            {currentSlide === slides.length - 1 ? "Get Started" : "Next"}
           </Text>
           <Ionicons
             name="arrow-forward"
@@ -150,134 +155,134 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
   },
   skipButton: {
     fontSize: 16,
-    color: '#0066CC',
-    fontWeight: '600',
+    color: "#0066CC",
+    fontWeight: "600",
   },
   slideCounter: {
     fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
+    color: "#666",
+    fontWeight: "500",
   },
   content: {
     flexGrow: 1,
     paddingHorizontal: 20,
     paddingVertical: 20,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   iconContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 32,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   description: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     lineHeight: 24,
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   detailsContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 16,
     marginBottom: 24,
   },
   detailItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 12,
   },
   detailBullet: {
     fontSize: 18,
-    color: '#0066CC',
+    color: "#0066CC",
     marginRight: 8,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   detailText: {
     flex: 1,
     fontSize: 14,
-    color: '#333',
+    color: "#333",
     lineHeight: 20,
   },
   referenceBox: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 16,
     marginTop: 24,
   },
   referenceTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: "600",
+    color: "#000",
     marginBottom: 12,
   },
   referenceExample: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   referenceName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 4,
   },
   referenceSize: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
   },
   footer: {
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
-    backgroundColor: '#fff',
+    borderTopColor: "#ddd",
+    backgroundColor: "#fff",
   },
   progressBar: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginBottom: 20,
   },
   progressDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#ddd',
+    backgroundColor: "#ddd",
     marginHorizontal: 4,
   },
   progressDotActive: {
-    backgroundColor: '#0066CC',
+    backgroundColor: "#0066CC",
     width: 24,
   },
   button: {
-    backgroundColor: '#0066CC',
+    backgroundColor: "#0066CC",
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

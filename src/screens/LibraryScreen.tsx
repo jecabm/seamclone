@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,13 @@ import {
   Alert,
   SafeAreaView,
   RefreshControl,
-} from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList, Project } from '../types';
-import { authService, firestoreService } from '../services/firebase';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList, Project } from "../types";
+import { authService, firestoreService } from "../services/firebase";
+import { Ionicons } from "@expo/vector-icons";
 
-type LibraryScreenProps = NativeStackScreenProps<RootStackParamList, 'Library'>;
+type LibraryScreenProps = NativeStackScreenProps<RootStackParamList, "Library">;
 
 export const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -34,7 +34,7 @@ export const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
       const userProjects = await firestoreService.getUserProjects(user.uid);
       setProjects(userProjects);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to load projects');
+      Alert.alert("Error", error.message || "Failed to load projects");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -53,20 +53,20 @@ export const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
     try {
       await firestoreService.createProject(user.uid, {
         title: `Project ${new Date().toLocaleDateString()}`,
-        status: 'draft',
+        status: "draft",
         createdAt: new Date(),
         updatedAt: new Date(),
       });
 
-      Alert.alert('Success', 'Project created!');
+      Alert.alert("Success", "Project created!");
       loadProjects();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create project');
+      Alert.alert("Error", error.message || "Failed to create project");
     }
   };
 
   const handleProjectPress = (projectId: string) => {
-    navigation.navigate('ProjectDetail', { projectId });
+    navigation.navigate("ProjectDetail", { projectId });
   };
 
   const renderProjectCard = ({ item }: { item: Project }) => (
@@ -85,7 +85,12 @@ export const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
           </Text>
         </View>
       </View>
-      <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+      <View
+        style={[
+          styles.statusBadge,
+          { backgroundColor: getStatusColor(item.status) },
+        ]}
+      >
         <Text style={styles.statusText}>{item.status.toUpperCase()}</Text>
       </View>
     </TouchableOpacity>
@@ -133,7 +138,9 @@ export const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
           renderItem={renderProjectCard}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
 
@@ -146,23 +153,23 @@ export const LibraryScreen: React.FC<LibraryScreenProps> = ({ navigation }) => {
 
 const getStatusColor = (status: string): string => {
   switch (status) {
-    case 'draft':
-      return '#f0f0f0';
-    case 'scanning':
-      return '#FFA500';
-    case 'editing':
-      return '#4CAF50';
-    case 'completed':
-      return '#4CAF50';
+    case "draft":
+      return "#f0f0f0";
+    case "scanning":
+      return "#FFA500";
+    case "editing":
+      return "#4CAF50";
+    case "completed":
+      return "#4CAF50";
     default:
-      return '#ddd';
+      return "#ddd";
   }
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   header: {
     paddingHorizontal: 20,
@@ -171,43 +178,43 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
   },
   filterBar: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   filterButton: {
     marginRight: 12,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#ddd',
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderColor: "#ddd",
+    flexDirection: "row",
+    alignItems: "center",
   },
   filterButtonText: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginRight: 4,
   },
   projectCount: {
     fontSize: 12,
-    fontWeight: 'bold',
-    color: '#0066CC',
-    backgroundColor: '#E3F2FD',
+    fontWeight: "bold",
+    color: "#0066CC",
+    backgroundColor: "#E3F2FD",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -217,85 +224,85 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   projectCard: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: "#eee",
   },
   projectHeader: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 12,
   },
   projectIcon: {
     width: 60,
     height: 60,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   projectInfo: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   projectTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: "600",
+    color: "#000",
     marginBottom: 4,
   },
   projectMeta: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
   },
   statusBadge: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 4,
   },
   statusText: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: "700",
+    color: "#333",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyState: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: "600",
+    color: "#000",
     marginTop: 16,
     marginBottom: 8,
   },
   emptyDescription: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
   },
   fab: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 20,
     right: 20,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#0066CC',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#0066CC",
+    alignItems: "center",
+    justifyContent: "center",
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3,

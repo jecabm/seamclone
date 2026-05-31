@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,14 +6,17 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
+  Slider,
   Switch,
-} from 'react-native';
-import Slider from '@react-native-community/slider';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
-import { Ionicons } from '@expo/vector-icons';
+} from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../types";
+import { Ionicons } from "@expo/vector-icons";
 
-type RectificationScreenProps = NativeStackScreenProps<RootStackParamList, 'Rectification'>;
+type RectificationScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  "Rectification"
+>;
 
 export const RectificationScreen: React.FC<RectificationScreenProps> = ({
   route,
@@ -25,7 +28,7 @@ export const RectificationScreen: React.FC<RectificationScreenProps> = ({
   const [addSeamAllowance, setAddSeamAllowance] = useState(false);
 
   const handleConfirm = () => {
-    navigation.navigate('PatternPieces', { projectId });
+    navigation.navigate("PatternPieces", { projectId });
   };
 
   return (
@@ -43,7 +46,9 @@ export const RectificationScreen: React.FC<RectificationScreenProps> = ({
           <View style={styles.previewBox}>
             <Ionicons name="image-outline" size={80} color="#ccc" />
             <Text style={styles.previewText}>Flattened Image Preview</Text>
-            <Text style={styles.previewSubtext}>Perspective correction applied</Text>
+            <Text style={styles.previewSubtext}>
+              Perspective correction applied
+            </Text>
           </View>
         </View>
 
@@ -84,8 +89,8 @@ export const RectificationScreen: React.FC<RectificationScreenProps> = ({
             <Switch
               value={addSeamAllowance}
               onValueChange={setAddSeamAllowance}
-              trackColor={{ false: '#ccc', true: '#81C784' }}
-              thumbColor={addSeamAllowance ? '#4CAF50' : '#fff'}
+              trackColor={{ false: "#ccc", true: "#81C784" }}
+              thumbColor={addSeamAllowance ? "#4CAF50" : "#fff"}
             />
           </View>
 
@@ -108,10 +113,14 @@ export const RectificationScreen: React.FC<RectificationScreenProps> = ({
         </View>
 
         <View style={styles.infoBox}>
-          <Ionicons name="information-circle-outline" size={20} color="#0066CC" />
+          <Ionicons
+            name="information-circle-outline"
+            size={20}
+            color="#0066CC"
+          />
           <Text style={styles.infoText}>
-            Adjust these settings to ensure accurate pattern extraction. Preview updates in
-            real-time.
+            Adjust these settings to ensure accurate pattern extraction. Preview
+            updates in real-time.
           </Text>
         </View>
       </ScrollView>
@@ -133,59 +142,59 @@ export const RectificationScreen: React.FC<RectificationScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: "600",
+    color: "#000",
   },
   previewSection: {
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
   previewBox: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     paddingVertical: 40,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: "#eee",
   },
   previewText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginTop: 12,
   },
   previewSubtext: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
     marginTop: 4,
   },
   controlsSection: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 8,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: "#eee",
   },
   sectionTitle: {
     fontSize: 12,
-    fontWeight: '700',
-    color: '#666',
-    textTransform: 'uppercase',
+    fontWeight: "700",
+    color: "#666",
+    textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 12,
   },
@@ -194,107 +203,107 @@ const styles = StyleSheet.create({
   },
   sliderLabel: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: "600",
+    color: "#000",
     marginBottom: 8,
   },
   slider: {
     height: 40,
   },
   sliderLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 8,
   },
   sliderLabelText: {
     fontSize: 11,
-    color: '#999',
-    fontWeight: '500',
+    color: "#999",
+    fontWeight: "500",
   },
   edgePreview: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderRadius: 8,
     paddingVertical: 32,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 16,
   },
   edgePreviewText: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
     marginTop: 8,
   },
   toggleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   toggleTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: "600",
+    color: "#000",
     marginBottom: 4,
   },
   toggleSubtitle: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
   },
   infoBox: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginHorizontal: 16,
     marginVertical: 16,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: "#E3F2FD",
     borderRadius: 8,
     padding: 12,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   infoText: {
     flex: 1,
     fontSize: 12,
-    color: '#0066CC',
+    color: "#0066CC",
     marginLeft: 8,
     lineHeight: 18,
   },
   footer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 12,
     gap: 12,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
-    backgroundColor: '#fff',
+    borderTopColor: "#eee",
+    backgroundColor: "#fff",
   },
   button: {
     flex: 1,
-    backgroundColor: '#0066CC',
+    backgroundColor: "#0066CC",
     borderRadius: 8,
     paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 14,
   },
   buttonSecondary: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#0066CC',
+    borderColor: "#0066CC",
     borderRadius: 8,
     paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
   },
   buttonSecondaryText: {
-    color: '#0066CC',
-    fontWeight: '600',
+    color: "#0066CC",
+    fontWeight: "600",
     fontSize: 14,
   },
 });

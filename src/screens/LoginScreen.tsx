@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,23 +10,23 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from 'react-native';
-import { authService } from '../services/firebase';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
+} from "react-native";
+import { authService } from "../services/firebase";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../types";
 
-type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
+type LoginScreenProps = NativeStackScreenProps<RootStackParamList, "Login">;
 
-export const LoginScreen: React.FC<LoginScreenProps> = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [displayName, setDisplayName] = useState('');
+  const [displayName, setDisplayName] = useState("");
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
 
@@ -35,18 +35,20 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
       if (isSignUp) {
         // Sign up
         if (!displayName) {
-          Alert.alert('Error', 'Please enter your display name');
+          Alert.alert("Error", "Please enter your display name");
           setLoading(false);
           return;
         }
         await authService.register(email, password, displayName);
-        Alert.alert('Success', 'Account created! You are now logged in.');
+        Alert.alert("Success", "Account created! Navigating to onboarding...");
+        navigation.replace("Onboarding");
       } else {
         // Login
         await authService.login(email, password);
+        navigation.replace("MainApp");
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Authentication failed');
+      Alert.alert("Error", error.message || "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -54,7 +56,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -113,26 +115,28 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={styles.buttonText}>
-                {isSignUp ? 'Create Account' : 'Sign In'}
+                {isSignUp ? "Create Account" : "Sign In"}
               </Text>
             )}
           </TouchableOpacity>
 
           <View style={styles.toggleContainer}>
             <Text style={styles.toggleText}>
-              {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
+              {isSignUp
+                ? "Already have an account? "
+                : "Don't have an account? "}
             </Text>
             <TouchableOpacity
               onPress={() => {
                 setIsSignUp(!isSignUp);
-                setDisplayName('');
-                setEmail('');
-                setPassword('');
+                setDisplayName("");
+                setEmail("");
+                setPassword("");
               }}
               disabled={loading}
             >
               <Text style={styles.toggleButton}>
-                {isSignUp ? 'Sign In' : 'Create Account'}
+                {isSignUp ? "Sign In" : "Create Account"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -151,11 +155,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     padding: 20,
   },
   header: {
@@ -164,13 +168,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 36,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     lineHeight: 20,
   },
   form: {
@@ -181,55 +185,55 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: "600",
+    color: "#000",
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   button: {
-    backgroundColor: '#0066CC',
+    backgroundColor: "#0066CC",
     borderRadius: 8,
     paddingVertical: 14,
     paddingHorizontal: 20,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   toggleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 16,
   },
   toggleText: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
   toggleButton: {
     fontSize: 14,
-    color: '#0066CC',
-    fontWeight: '600',
+    color: "#0066CC",
+    fontWeight: "600",
   },
   footer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   footerText: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
   },
 });

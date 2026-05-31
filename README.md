@@ -1,50 +1,77 @@
-# Welcome to your Expo app 👋
+# SeamClone
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+SeamClone is an Expo + React Native app with native camera modules.
 
-## Get started
+## Important Runtime Note
 
-1. Install dependencies
+This project uses native modules (for example, vision camera/worklets) that are not supported in Expo Go.
 
-   ```bash
-   npm install
-   ```
+For iPhone device testing, use a custom development build (dev client), not Expo Go.
 
-2. Start the app
+## Quick Start
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+1. Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. Start Metro for dev client (default script):
 
-## Learn more
+```bash
+npm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+3. If network discovery is unstable, use tunnel mode:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm run start:dev-client:tunnel
+```
 
-## Join the community
+4. Open the installed SeamClone development client app on iPhone and connect via the QR/link shown by Metro.
 
-Join our community of developers creating universal apps.
+## Scripts
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `npm start`: Start Metro in dev-client mode (default for this repo)
+- `npm run start:dev-client`: Explicit dev-client mode
+- `npm run start:dev-client:tunnel`: Dev-client mode with tunnel + clear cache
+- `npm run dev:iphone`: One-command iPhone launch flow (dev-client + tunnel)
+- `npm run dev:all`: One-command full stack (backend API + iPhone Metro)
+- `npm run start:go`: Expo Go mode for limited non-camera flows only
+- `npm run start:go:limited`: Same as Expo Go mode with a cleared cache
+- `npm run start:go:tunnel`: Expo Go mode over tunnel for limited non-camera flows only
+- `npm run web`: Run web target
+- `npm run android`: Open Android target
+
+## iPhone Build Requirement
+
+If you do not yet have the SeamClone development client installed on iPhone, build it first:
+
+```bash
+npx eas build -p ios --profile development
+```
+
+The `development` profile is configured in `eas.json`.
+
+## QR Troubleshooting
+
+- If the phone shows `No usable data found`, you are likely scanning a dev-client QR with the wrong app flow.
+- If runtime shows `NitroModules are not supported in Expo Go`, you opened with Expo Go instead of a custom dev client.
+- If you intentionally open in Expo Go, the scan route now shows a development-build-required screen instead of crashing, because the camera stack is native-only.
+- Use `npm run start:dev-client:tunnel` and open from the installed SeamClone dev app.
+
+## Daily Workflow
+
+Use one command depending on your target:
+
+```bash
+npm run dev:iphone
+```
+
+Run iPhone app workflow with dev-client compatible QR.
+
+```bash
+npm run dev:all
+```
+
+Run backend + iPhone workflow together in one terminal command.
